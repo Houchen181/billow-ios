@@ -5,6 +5,14 @@ Every user connects their banks through **their own free Plaid account**
 (bring-your-own-keys), so it costs $0 for you and for them, with no cap on
 how many people use the app.
 
+
+<p>
+  <img src="docs/screenshots/light-overview.png" width="200" alt="Overview">
+  <img src="docs/screenshots/light-activity.png" width="200" alt="Activity">
+  <img src="docs/screenshots/dark-overview.png" width="200" alt="Overview, dark mode">
+</p>
+<sub>Simulator captures from CI (demo data). Re-run them: Actions → iOS → Run workflow → tick “screenshots”.</sub>
+
 ```
  Bank / card issuer ──▶ Plaid (user's own free Trial: 10 bank logins)
                               │  HTTPS, user's keys from the iOS Keychain
