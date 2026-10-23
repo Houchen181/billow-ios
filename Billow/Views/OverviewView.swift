@@ -6,9 +6,10 @@ struct OverviewView: View {
     @Environment(SyncEngine.self) private var sync
     @Query(sort: \Charge.date, order: .reverse) private var allCharges: [Charge]
     @Query private var accounts: [BankAccount]
+    @Query private var banks: [LinkedBank]
 
     var body: some View {
-        let charges = visibleCharges(allCharges, accounts: accounts)
+        let charges = visibleCharges(allCharges, accounts: accounts, banks: banks)
         let calendar = Calendar.current
         let now = Date.now
         let monthStart = calendar.dateInterval(of: .month, for: now)?.start ?? Day.start(now)

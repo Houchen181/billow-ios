@@ -6,6 +6,7 @@ struct ActivityView: View {
     @Environment(SyncEngine.self) private var sync
     @Query(sort: \Charge.date, order: .reverse) private var allCharges: [Charge]
     @Query private var accounts: [BankAccount]
+    @Query private var banks: [LinkedBank]
 
     @State private var search = ""
     @State private var category: SpendCategory?
@@ -17,9 +18,13 @@ struct ActivityView: View {
         _card = State(initialValue: card)
     }
 
+    private var visible: [Charge] {
+        visibleCharges(allCharges, accounts: accounts, banks: banks)
+    }
+
     private var filtered: [Charge] {
         let needle = search.trimmingCharacters(in: .whitespaces).lowercased()
-        return visibleCharges(allCharges, accounts: accounts).filter { charge in
+        return visible.filter { charge in
             if let category, charge.category != category { return false }
             if let card, charge.cardName != card { return false }
             if needle.isEmpty { return true }
@@ -32,7 +37,7 @@ struct ActivityView: View {
         let list = filtered
         let groups = Dictionary(grouping: list) { Day.start($0.date) }
             .sorted { $0.key > $1.key }
-        let cardNames = Array(Set(allCharges.map(\.cardName))).sorted()
+        let cardNames = Array(Set(visible.map(\.cardName))).sorted()
 
         List {
             ForEach(groups, id: \.key) { group in

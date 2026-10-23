@@ -18,6 +18,7 @@ final class SyncEngine {
         isSyncing = true
         defer { isSyncing = false }
         lastError = nil
+        purgeSandboxData(context: context)
 
         let env = client.environment.rawValue
         let banks = (try? context.fetch(FetchDescriptor<LinkedBank>(
@@ -236,12 +237,29 @@ final class SyncEngine {
 
     /// Deletes the bank, its accounts and its charges from this device.
     func unlink(_ bank: LinkedBank, context: ModelContext) async {
-        let itemID = bank.itemID
-        let key = AppConfig.accessTokenKey(itemID: itemID)
-        if let token = Keychain.get(key), let client = try? PlaidClient.current() {
+        if let token = Keychain.get(AppConfig.accessTokenKey(itemID: bank.itemID)),
+           let client = try? PlaidClient.current() {
             try? await client.removeItem(accessToken: token)
         }
-        Keychain.set(nil, for: key)
+        removeLocally(bank, context: context)
+        try? context.save()
+    }
+
+    /// Sandbox banks are fake test data. Once the app runs on Production keys,
+    /// drop them so test spending never mixes with real spending.
+    func purgeSandboxData(context: ModelContext) {
+        guard AppConfig.environment == .production else { return }
+        let sandbox = PlaidEnvironment.sandbox.rawValue
+        let banks = (try? context.fetch(FetchDescriptor<LinkedBank>(
+            predicate: #Predicate { $0.environment == sandbox }))) ?? []
+        guard !banks.isEmpty else { return }
+        banks.forEach { removeLocally($0, context: context) }
+        try? context.save()
+    }
+
+    private func removeLocally(_ bank: LinkedBank, context: ModelContext) {
+        let itemID = bank.itemID
+        Keychain.set(nil, for: AppConfig.accessTokenKey(itemID: itemID))
         let chargeItemID: String? = itemID
         let charges = (try? context.fetch(FetchDescriptor<Charge>(
             predicate: #Predicate { $0.itemID == chargeItemID }))) ?? []

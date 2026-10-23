@@ -1,11 +1,18 @@
 import Charts
 import SwiftUI
 
-/// Charges from accounts the user switched off are hidden everywhere.
-func visibleCharges(_ charges: [Charge], accounts: [BankAccount]) -> [Charge] {
-    let hidden = Set(accounts.filter { !$0.included }.map(\.accountID))
-    guard !hidden.isEmpty else { return charges }
-    return charges.filter { charge in charge.accountID.map { !hidden.contains($0) } ?? true }
+/// Hidden everywhere: charges from accounts the user switched off, and from
+/// banks linked in the other Plaid environment (Sandbox test data vs real).
+func visibleCharges(_ charges: [Charge], accounts: [BankAccount], banks: [LinkedBank]) -> [Charge] {
+    let environment = AppConfig.environment.rawValue
+    let otherEnvironmentItems = Set(banks.filter { $0.environment != environment }.map(\.itemID))
+    let hiddenAccounts = Set(accounts.filter { !$0.included }.map(\.accountID))
+    guard !hiddenAccounts.isEmpty || !otherEnvironmentItems.isEmpty else { return charges }
+    return charges.filter { charge in
+        if let item = charge.itemID, otherEnvironmentItems.contains(item) { return false }
+        if let account = charge.accountID, hiddenAccounts.contains(account) { return false }
+        return true
+    }
 }
 
 /// Net spending in cents (refunds subtract, transfers/payments ignored).
