@@ -7,7 +7,8 @@ import SwiftData
 /// When the same purchase later arrives from Plaid, SyncEngine merges the two.
 struct LogTapIntent: AppIntent {
     static let title: LocalizedStringResource = "Log Card Tap"
-    static let description = IntentDescription("Records an Apple Pay purchase in Billow.")
+    // App Intent metadata must not contain the word "Apple" (ITMS-90626).
+    static let description = IntentDescription("Logs a tap-to-pay card purchase in Billow.")
     static let openAppWhenRun: Bool = false
 
     @Parameter(title: "Amount", description: "Shortcut Input → Amount")
