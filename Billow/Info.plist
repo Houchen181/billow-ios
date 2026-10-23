@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Charges</string>
+	<string>Billow</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -45,7 +45,7 @@
 	<array>
 		<string>$(PRODUCT_BUNDLE_IDENTIFIER).refresh</string>
 	</array>
-	<key>ChargesLinkDomain</key>
-	<string>$(CHARGES_LINK_DOMAIN)</string>
+	<key>BillowLinkDomain</key>
+	<string>$(BILLOW_LINK_DOMAIN)</string>
 </dict>
 </plist>

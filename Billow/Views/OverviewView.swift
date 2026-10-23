@@ -34,7 +34,7 @@ struct OverviewView: View {
             .padding(.bottom, 24)
         }
         .background(Color(.systemGroupedBackground))
-        .navigationTitle("Charges")
+        .navigationTitle("Billow")
         .refreshable { await sync.syncAll(context: context, refresh: true) }
     }
 

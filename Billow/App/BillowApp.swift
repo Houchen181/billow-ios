@@ -2,7 +2,7 @@ import SwiftData
 import SwiftUI
 
 @main
-struct ChargesApp: App {
+struct BillowApp: App {
     @State private var sync = SyncEngine()
     @State private var link = LinkCoordinator()
 
@@ -128,7 +128,7 @@ struct WelcomeView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
-                    Image(systemName: "bolt.fill")
+                    Image(systemName: "water.waves")
                         .font(.system(size: 34, weight: .bold))
                         .foregroundStyle(.white)
                         .frame(width: 64, height: 64)
@@ -139,7 +139,7 @@ struct WelcomeView: View {
                         bullet("building.columns.fill", "Your banks, your keys",
                                "Connect cards through your own free Plaid account — every swipe, tap, online order and subscription syncs on its own.")
                         bullet("lock.iphone", "Nothing leaves your iPhone",
-                               "Charges has no server. Your keys and transactions stay on this device and go only to Plaid.")
+                               "Billow has no server. Your keys and transactions stay on this device and go only to Plaid.")
                         bullet("wave.3.right", "Apple Card too",
                                "An optional Apple Pay automation logs taps instantly — the only way to track Apple Card.")
                     }

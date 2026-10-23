@@ -1,6 +1,6 @@
 # XcodeGen spec — the .xcodeproj is generated from this (CI runs `xcodegen generate`).
 # Change the bundle ID / link domain here before the first App Store Connect upload.
-name: Charges
+name: Billow
 options:
   bundleIdPrefix: com.houchenli
   deploymentTarget:
@@ -12,17 +12,17 @@ settings:
     MARKETING_VERSION: "1.0.0"
     CURRENT_PROJECT_VERSION: "1"
     # Domain that hosts apple-app-site-association + the Plaid OAuth redirect page (site/ folder).
-    CHARGES_LINK_DOMAIN: charges-hl.pages.dev
+    BILLOW_LINK_DOMAIN: billow-app.pages.dev
 packages:
   LinkKit:
     url: https://github.com/plaid/plaid-link-ios-spm
     majorVersion: 7.0.0
 targets:
-  Charges:
+  Billow:
     type: application
     platform: iOS
     sources:
-      - path: Charges
+      - path: Billow
     dependencies:
       - package: LinkKit
         product: LinkKit
@@ -33,21 +33,21 @@ targets:
       Release: Config/Signing.xcconfig
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.houchenli.charges
-        PRODUCT_NAME: Charges
-        INFOPLIST_FILE: Charges/Info.plist
+        PRODUCT_BUNDLE_IDENTIFIER: com.houchenli.billow
+        PRODUCT_NAME: Billow
+        INFOPLIST_FILE: Billow/Info.plist
         GENERATE_INFOPLIST_FILE: NO
-        CODE_SIGN_ENTITLEMENTS: Charges/Charges.entitlements
+        CODE_SIGN_ENTITLEMENTS: Billow/Billow.entitlements
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         TARGETED_DEVICE_FAMILY: "1"
         SUPPORTS_MACCATALYST: NO
         ENABLE_PREVIEWS: YES
 schemes:
-  Charges:
+  Billow:
     build:
       targets:
-        Charges: all
+        Billow: all
     run:
       config: Debug
     archive:

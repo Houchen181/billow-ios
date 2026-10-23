@@ -11,7 +11,7 @@ enum PlaidEnvironment: String, CaseIterable, Identifiable {
 
 /// Bring-your-own-keys configuration. Each user creates their own free Plaid
 /// account; their client ID + secret stay in this device's Keychain and are
-/// sent only to Plaid. There is no Charges server.
+/// sent only to Plaid. There is no Billow server.
 enum AppConfig {
     private static let envKey = "plaid.environment"
 
@@ -40,7 +40,7 @@ enum AppConfig {
 
     /// Host serving apple-app-site-association and the OAuth landing page (see site/).
     static var linkDomain: String {
-        (Bundle.main.object(forInfoDictionaryKey: "ChargesLinkDomain") as? String) ?? "charges-hl.pages.dev"
+        (Bundle.main.object(forInfoDictionaryKey: "BillowLinkDomain") as? String) ?? "billow-app.pages.dev"
     }
 
     /// Every user registers this exact URI in their own Plaid dashboard.

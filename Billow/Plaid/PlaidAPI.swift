@@ -100,7 +100,7 @@ struct PlaidClient {
     /// New-bank Link token, or update-mode token when `accessToken` is given.
     func createLinkToken(accessToken: String? = nil) async throws -> String {
         var body: [String: Any] = [
-            "client_name": "Charges",
+            "client_name": "Billow",
             "language": "en",
             "country_codes": ["US"],
             "user": ["client_user_id": AppConfig.installID],

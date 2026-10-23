@@ -1,4 +1,4 @@
-// Signing for the Charges app target.
+// Signing for the Billow app target.
 // CI generates Signing.generated.xcconfig (DEVELOPMENT_TEAM, CODE_SIGN_STYLE,
 // CODE_SIGN_IDENTITY, PROVISIONING_PROFILE_SPECIFIER) from GitHub secrets.
 // On a Mac, leave it absent and pick your team in Xcode instead.

@@ -115,7 +115,7 @@ enum DataStore {
         do {
             return try ModelContainer(for: schema, configurations: [ModelConfiguration(schema: schema)])
         } catch {
-            fatalError("Could not open the Charges store: \(error)")
+            fatalError("Could not open the Billow store: \(error)")
         }
     }()
 }

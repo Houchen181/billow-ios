@@ -4,7 +4,7 @@
 <dict>
 	<key>com.apple.developer.associated-domains</key>
 	<array>
-		<string>applinks:$(CHARGES_LINK_DOMAIN)</string>
+		<string>applinks:$(BILLOW_LINK_DOMAIN)</string>
 	</array>
 </dict>
 </plist>

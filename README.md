@@ -1,4 +1,6 @@
-# ⚡ Charges (iOS)
+<img src="docs/icon-preview.png" width="96" alt="Billow icon">
+
+# Billow (iOS)
 
 Automatic credit-card expense tracking. Native SwiftUI app; **no server**.
 Every user connects their banks through **their own free Plaid account**
@@ -17,7 +19,7 @@ how many people use the app.
  Bank / card issuer ──▶ Plaid (user's own free Trial: 10 bank logins)
                               │  HTTPS, user's keys from the iOS Keychain
                               ▼
-   Charges app on iPhone ── SwiftData store (on device only)
+   Billow app on iPhone ── SwiftData store (on device only)
         ▲                      ├─ background refresh → "$4.75 · Blue Bottle" notifications
         │                      └─ dashboard · categories · cards · search
  Apple Pay tap ──▶ Shortcuts "Transaction" automation ──▶ Log Card Tap intent
@@ -33,7 +35,7 @@ landing page, the privacy policy and a user setup guide.
 | Path | What |
 |---|---|
 | `project.yml` | XcodeGen spec — the `.xcodeproj` is generated (CI does it) |
-| `Charges/` | App source: `Plaid/` (REST client + LinkKit 7), `Sync/`, `Model/`, `Views/`, `Intents/` |
+| `Billow/` | App source: `Plaid/` (REST client + LinkKit 7), `Sync/`, `Model/`, `Views/`, `Intents/` |
 | `.github/workflows/ios.yml` | Compiles every push; manual run signs + uploads to TestFlight |
 | `scripts/signing.sh` | Make signing cert + set GitHub secrets from Windows |
 | `site/` | Static site for Cloudflare Pages |
@@ -42,19 +44,19 @@ landing page, the privacy policy and a user setup guide.
 
 ### 1. Apple Developer portal (developer.apple.com → Certificates, IDs & Profiles)
 
-1. **Identifiers → +** → App ID `com.houchenli.charges` (or change it in
+1. **Identifiers → +** → App ID `com.houchenli.billow` (or change it in
    `project.yml` + `site/.well-known/apple-app-site-association` first).
    Enable **Associated Domains**.
 2. In Git Bash: `scripts/signing.sh csr you@example.com "Your Name"` →
    **Certificates → +** → *Apple Distribution* → upload `signing/dist.csr` →
    download `distribution.cer`.
 3. **Profiles → +** → *App Store Connect* → pick the App ID + certificate →
-   name it e.g. `Charges App Store` → download the `.mobileprovision`.
+   name it e.g. `Billow App Store` → download the `.mobileprovision`.
 4. Note your **Team ID** (Membership details).
 
 ### 2. App Store Connect (appstoreconnect.apple.com)
 
-1. **Apps → + New App** → iOS, name *Charges*, bundle ID from step 1.
+1. **Apps → + New App** → iOS, name *Billow*, bundle ID from step 1.
    Category: **Finance**.
 2. **Users and Access → Integrations → App Store Connect API → Team Keys → +**
    (role *App Manager*) → download `AuthKey_XXXX.p8` (one chance!) and note
@@ -63,7 +65,7 @@ landing page, the privacy policy and a user setup guide.
 ### 3. GitHub secrets
 
 ```bash
-scripts/signing.sh secrets distribution.cer Charges_App_Store.mobileprovision AuthKey_XXXX.p8 KEY_ID ISSUER_ID TEAM_ID
+scripts/signing.sh secrets distribution.cer Billow_App_Store.mobileprovision AuthKey_XXXX.p8 KEY_ID ISSUER_ID TEAM_ID
 ```
 
 ### 4. Static site (Cloudflare Pages, free)
@@ -71,10 +73,10 @@ scripts/signing.sh secrets distribution.cer Charges_App_Store.mobileprovision Au
 Replace `TEAMID` in `site/.well-known/apple-app-site-association`, then:
 
 ```bash
-npx wrangler pages deploy site --project-name charges-hl
+npx wrangler pages deploy site --project-name billow-app
 ```
 
-If `charges-hl` is taken, pick another name and update `CHARGES_LINK_DOMAIN`
+If `billow-app` is taken, pick another name and update `BILLOW_LINK_DOMAIN`
 in `project.yml` and the URLs in `site/index.html`.
 
 ### 5. Build → TestFlight
@@ -93,9 +95,9 @@ free Plaid account → apply for the Trial plan → add the redirect URI → pas
 ## App Store submission notes
 
 - Guideline 5.1.1(ix) says apps in highly regulated fields, such as banking,
-  must come from a legal entity. Charges is a personal finance *viewer*: it
+  must come from a legal entity. Billow is a personal finance *viewer*: it
   moves no money, and the developer runs no servers and receives no user data.
-  Suggested review note: *"Charges is a read-only spending tracker. It has no
+  Suggested review note: *"Billow is a read-only spending tracker. It has no
   backend; each user connects their own Plaid developer account and all data
   stays on device. Demo data: Accounts → Demo data. Sandbox keys for bank
   linking: [client_id] / [sandbox secret], institution 'First Platypus Bank',
@@ -103,7 +105,7 @@ free Plaid account → apply for the Trial plan → add the redirect URI → pas
   an organization developer account (which also unlocks FinanceKit for Apple
   Card).
 - Privacy label: **Data Not Collected** (nothing reaches the developer).
-- Privacy policy URL: `https://charges-hl.pages.dev/privacy` (fill in the
+- Privacy policy URL: `https://billow-app.pages.dev/privacy` (fill in the
   contact line first).
 
 ## Limits, honestly

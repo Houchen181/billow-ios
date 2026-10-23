@@ -7,7 +7,7 @@ import SwiftData
 /// When the same purchase later arrives from Plaid, SyncEngine merges the two.
 struct LogTapIntent: AppIntent {
     static let title: LocalizedStringResource = "Log Card Tap"
-    static let description = IntentDescription("Records an Apple Pay purchase in Charges.")
+    static let description = IntentDescription("Records an Apple Pay purchase in Billow.")
     static let openAppWhenRun: Bool = false
 
     @Parameter(title: "Amount", description: "Shortcut Input → Amount")
@@ -22,7 +22,7 @@ struct LogTapIntent: AppIntent {
     @MainActor
     func perform() async throws -> some IntentResult & ProvidesDialog {
         guard let cents = Money.parseCents(amount), cents > 0 else {
-            return .result(dialog: "Charges couldn't read the amount “\(amount)”.")
+            return .result(dialog: "Billow couldn't read the amount “\(amount)”.")
         }
         let name = (merchant?.trimmingCharacters(in: .whitespacesAndNewlines)).flatMap { $0.isEmpty ? nil : $0 }
             ?? "Apple Pay purchase"
@@ -41,7 +41,7 @@ struct LogTapIntent: AppIntent {
     }
 }
 
-struct ChargesShortcuts: AppShortcutsProvider {
+struct BillowShortcuts: AppShortcutsProvider {
     static var appShortcuts: [AppShortcut] {
         AppShortcut(
             intent: LogTapIntent(),

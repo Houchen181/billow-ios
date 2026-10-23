@@ -19,7 +19,7 @@ struct PlaidSetupView: View {
     var body: some View {
         Form {
             Section {
-                Text("Charges connects to your banks through **your own** Plaid account. Plaid's free Trial covers 10 bank logins with real data — plenty for one person. Takes about 10 minutes, once.")
+                Text("Billow connects to your banks through **your own** Plaid account. Plaid's free Trial covers 10 bank logins with real data — plenty for one person. Takes about 10 minutes, once.")
                     .font(.subheadline)
             }
 
@@ -71,7 +71,7 @@ struct PlaidSetupView: View {
             } header: {
                 Text("3 · Paste your keys")
             } footer: {
-                Text("Plaid dashboard → Developers → Keys. Stored only in this iPhone's Keychain and sent only to Plaid — Charges has no server.")
+                Text("Plaid dashboard → Developers → Keys. Stored only in this iPhone's Keychain and sent only to Plaid — Billow has no server.")
             }
 
             Section {
@@ -119,15 +119,15 @@ struct TapGuideView: View {
     var body: some View {
         List {
             Section {
-                Text("Plaid can't read Apple Card. Instead, an iPhone automation can log every Apple Pay tap — on any card — the moment it happens. When the same purchase later arrives from your bank, Charges merges the two.")
+                Text("Plaid can't read Apple Card. Instead, an iPhone automation can log every Apple Pay tap — on any card — the moment it happens. When the same purchase later arrives from your bank, Billow merges the two.")
                     .font(.subheadline)
             }
             Section("Set it up once (iOS 17+)") {
                 step(1, "Open **Shortcuts** → **Automation** → **+** → **Transaction**.")
                 step(2, "Select all your cards, leave the rest unfiltered, choose **Run Immediately**.")
-                step(3, "**New Blank Automation** → add the **Log Card Tap** action (from Charges).")
+                step(3, "**New Blank Automation** → add the **Log Card Tap** action (from Billow).")
                 step(4, "Set **Amount** → Shortcut Input › Amount, **Merchant** → Shortcut Input › Merchant, **Card** → Shortcut Input › Card or Pass.")
-                step(5, "Tap **Done**. Next time you tap to pay, it appears in Charges.")
+                step(5, "Tap **Done**. Next time you tap to pay, it appears in Billow.")
                 Link(destination: URL(string: "shortcuts://")!) {
                     Label("Open Shortcuts", systemImage: "arrow.up.right.square")
                 }
