@@ -6,6 +6,13 @@ struct ChargesApp: App {
     @State private var sync = SyncEngine()
     @State private var link = LinkCoordinator()
 
+    init() {
+        if LaunchOptions.demo {
+            UserDefaults.standard.set(true, forKey: "onboarded")
+            DemoData.setEnabled(true, context: DataStore.container.mainContext)
+        }
+    }
+
     var body: some Scene {
         WindowGroup {
             RootView()
@@ -19,22 +26,43 @@ struct ChargesApp: App {
     }
 }
 
+enum AppTab: String, Hashable {
+    case overview, activity, accounts
+}
+
+/// Launch arguments CI uses for simulator screenshots:
+/// `-ui-demo` skips onboarding and loads demo data; `-ui-tab activity` picks a tab.
+enum LaunchOptions {
+    private static let arguments = ProcessInfo.processInfo.arguments
+
+    static var demo: Bool { arguments.contains("-ui-demo") }
+
+    static var tab: AppTab {
+        guard let i = arguments.firstIndex(of: "-ui-tab"), i + 1 < arguments.count else { return .overview }
+        return AppTab(rawValue: arguments[i + 1]) ?? .overview
+    }
+}
+
 struct RootView: View {
     @Environment(\.modelContext) private var context
     @Environment(\.scenePhase) private var scenePhase
     @Environment(SyncEngine.self) private var sync
     @Environment(LinkCoordinator.self) private var link
     @AppStorage("onboarded") private var onboarded = false
+    @State private var tab = LaunchOptions.tab
 
     var body: some View {
         @Bindable var link = link
-        TabView {
+        TabView(selection: $tab) {
             NavigationStack { OverviewView() }
                 .tabItem { Label("Overview", systemImage: "chart.bar.fill") }
+                .tag(AppTab.overview)
             NavigationStack { ActivityView() }
                 .tabItem { Label("Activity", systemImage: "list.bullet.rectangle") }
+                .tag(AppTab.activity)
             NavigationStack { AccountsView() }
                 .tabItem { Label("Accounts", systemImage: "creditcard.fill") }
+                .tag(AppTab.accounts)
         }
         .sheet(isPresented: $link.isPresenting) {
             if let session = link.session {
