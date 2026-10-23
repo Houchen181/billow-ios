@@ -92,7 +92,8 @@ struct ChargeRow: View {
                     Text("·")
                     Text(charge.cardName).lineLimit(1)
                     if charge.pending { Text("· Pending") }
-                    if charge.source == "demo" { Text("· Demo") }
+                    // Hidden only in CI screenshot mode (-ui-demo), where all rows are samples.
+                    if charge.source == "demo" && !LaunchOptions.demo { Text("· Demo") }
                     if charge.source == "tap" {
                         Image(systemName: "wave.3.right").accessibilityLabel("Apple Pay tap")
                     }
