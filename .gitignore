@@ -27,3 +27,8 @@ signing/
 node_modules/
 
 .DS_Store
+
+.dev.vars*
+!.dev.vars.example
+.env*
+!.env.example
