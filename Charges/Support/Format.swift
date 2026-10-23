@@ -14,6 +14,12 @@ enum Money {
         return string(cents, currency: currency)
     }
 
+    /// Axis ticks: "$200" rather than "$200.00".
+    static func axis(_ cents: Int, currency: String = "USD") -> String {
+        guard cents % 100 == 0 else { return string(cents, currency: currency) }
+        return (Decimal(cents / 100)).formatted(.currency(code: currency).precision(.fractionLength(0)))
+    }
+
     /// Parses "$12.34", "12.34", "1,234.50 USD" → cents.
     static func parseCents(_ text: String) -> Int? {
         let cleaned = text.replacingOccurrences(of: ",", with: "")

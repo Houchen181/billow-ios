@@ -15,9 +15,10 @@ on:
         type: boolean
         default: false
 
+# A new push cancels an older push build, but never a manual TestFlight run.
 concurrency:
-  group: ios-${{ github.ref }}
-  cancel-in-progress: true
+  group: ios-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: ${{ github.event_name != 'workflow_dispatch' }}
 
 jobs:
   compile:
@@ -85,6 +86,7 @@ jobs:
           xcrun simctl bootstatus "$DEVICE" -b
           xcrun simctl status_bar "$DEVICE" override --time "9:41" --batteryState charged --batteryLevel 100 --cellularBars 4 --wifiBars 3
           xcrun simctl install "$DEVICE" "$APP"
+          sleep 25   # let first-boot system banners clear before capturing
           mkdir -p shots
           for mode in light dark; do
             xcrun simctl ui "$DEVICE" appearance "$mode"

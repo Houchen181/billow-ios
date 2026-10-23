@@ -19,7 +19,8 @@ case "${1:-}" in
   csr)
     [[ $# -eq 3 ]] || { echo "usage: $0 csr <email> \"<Your Name>\""; exit 1; }
     openssl genrsa -out signing/dist.key 2048 2>/dev/null
-    openssl req -new -key signing/dist.key -out signing/dist.csr \
+    # MSYS_NO_PATHCONV stops Git Bash rewriting "/emailAddress=…" into a Windows path.
+    MSYS_NO_PATHCONV=1 openssl req -new -key signing/dist.key -out signing/dist.csr \
       -subj "/emailAddress=$2/CN=$3/C=US"
     echo "Created signing/dist.csr — upload it as an Apple Distribution certificate request."
     ;;

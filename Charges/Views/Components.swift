@@ -162,6 +162,11 @@ struct DailyChart: View {
         }
     }
 
+    private var weeklyTicks: [Date] {
+        let today = Day.start(.now)
+        return [28, 21, 14, 7].compactMap { Calendar.current.date(byAdding: .day, value: -$0, to: today) }
+    }
+
     var body: some View {
         let data = days
         let selected = selection.flatMap { s in data.first { Calendar.current.isDate($0.date, inSameDayAs: s) } }
@@ -187,7 +192,8 @@ struct DailyChart: View {
             }
             .chartXSelection(value: $selection)
             .chartXAxis {
-                AxisMarks(values: .stride(by: .day, count: 7)) { _ in
+                // Weekly ticks that stop short of the right edge, so no label is clipped.
+                AxisMarks(values: weeklyTicks) { _ in
                     AxisValueLabel(format: .dateTime.month(.abbreviated).day())
                 }
             }
@@ -196,7 +202,7 @@ struct DailyChart: View {
                     AxisGridLine()
                     AxisValueLabel {
                         if let dollars = value.as(Double.self) {
-                            Text(Money.short(Int(dollars * 100)))
+                            Text(Money.axis(Int((dollars * 100).rounded())))
                         }
                     }
                 }
