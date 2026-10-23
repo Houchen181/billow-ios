@@ -32,6 +32,8 @@ Billow keeps a running tally of what you spend across all of your credit cards �
 
 Connect your banks once and every swipe, tap, online order and subscription shows up on its own, sorted into categories, with a daily chart and a month-to-date total that tells you whether you're on pace.
 
+REQUIRES: a US bank or card issuer and your own free Plaid account (the in-app guide walks you through setup).
+
 PRIVATE BY DESIGN
 • No Billow account and no Billow servers. Your transactions are stored only on your iPhone.
 • You connect banks through your own free Plaid account (Plaid's Trial plan covers 10 bank logins). Your keys stay in the iOS Keychain and are sent only to Plaid.
