@@ -1,9 +1,13 @@
 name: iOS
 
+# macOS minutes count 10x against the free allowance on private repos, so
+# docs/site-only changes skip CI, and manual runs don't repeat the compile job.
 on:
   push:
     branches: [main]
+    paths-ignore: ['docs/**', 'site/**', '**/*.md', 'scripts/**']
   pull_request:
+    paths-ignore: ['docs/**', 'site/**', '**/*.md', 'scripts/**']
   workflow_dispatch:
     inputs:
       testflight:
@@ -23,6 +27,7 @@ concurrency:
 jobs:
   compile:
     name: Compile (unsigned)
+    if: github.event_name != 'workflow_dispatch'
     runs-on: macos-26
     timeout-minutes: 30
     steps:
@@ -44,7 +49,6 @@ jobs:
 
   screenshots:
     name: Simulator screenshots
-    needs: compile
     if: github.event_name == 'workflow_dispatch' && inputs.screenshots
     runs-on: macos-26
     timeout-minutes: 30
@@ -104,7 +108,6 @@ jobs:
 
   testflight:
     name: Sign & upload to TestFlight
-    needs: compile
     if: github.event_name == 'workflow_dispatch' && inputs.testflight
     runs-on: macos-26
     timeout-minutes: 45
