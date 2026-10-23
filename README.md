@@ -70,7 +70,7 @@ scripts/signing.sh secrets distribution.cer Billow_App_Store.mobileprovision Aut
 
 ### 4. Static site (Cloudflare Pages, free)
 
-Replace `TEAMID` in `site/.well-known/apple-app-site-association`, then:
+The AASA file already contains Team ID AGBDAUWG94. Deploy with:
 
 ```bash
 npx wrangler pages deploy site --project-name billow-app

@@ -2,7 +2,7 @@
   "applinks": {
     "details": [
       {
-        "appIDs": ["TEAMID.com.houchenli.billow"],
+        "appIDs": ["AGBDAUWG94.com.houchenli.billow"],
         "components": [
           { "/": "/plaid/*", "comment": "Plaid OAuth redirect back into Billow" }
         ]
