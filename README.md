@@ -104,7 +104,11 @@ free Plaid account → apply for the Trial plan → add the redirect URI → pas
   user_good / pass_good."* If it is still rejected under 5.1.1(ix), the fix is
   an organization developer account (which also unlocks FinanceKit for Apple
   Card).
-- Privacy label: **Data Not Collected** (nothing reaches the developer).
+- Privacy label: the developer collects nothing, but Plaid's SDK runs inside
+  the app, so declare what Plaid collects: **Financial Info → Other Financial
+  Info** and **Identifiers → User ID**, both *App Functionality*, *linked to
+  the user*, *not used for tracking* (LinkKit's privacy manifest declares the
+  User ID).
 - Privacy policy URL: `https://billow-app.pages.dev/privacy` (fill in the
   contact line first).
 

@@ -24,22 +24,24 @@ enum DemoData {
 
     private static func install(context: ModelContext) {
         var rng = SeededRandom(seed: 20261022)
-        let cards = ["Chase •4321", "Amex •1005", "Apple Card"]
+        // Made-up names only: demo data appears in App Store screenshots and
+        // review, where real brands and card issuers would be trademark issues.
+        let cards = ["Travel Card •4321", "Cashback Card •1005", "Everyday Card •2210"]
         let pool: [(String, SpendCategory, Double, Double, Double)] = [
-            ("Blue Bottle Coffee", .dining, 4.5, 9, 0.16),
-            ("Sweetgreen", .dining, 12, 18, 0.10),
-            ("Dunkin'", .dining, 3.5, 7, 0.10),
-            ("Trader Joe's", .groceries, 18, 85, 0.10),
-            ("H Mart", .groceries, 15, 70, 0.06),
-            ("MBTA", .transport, 2.4, 10, 0.11),
-            ("Uber", .transport, 9, 34, 0.06),
-            ("Amazon", .shopping, 8, 120, 0.09),
-            ("Target", .shopping, 12, 90, 0.05),
-            ("CVS Pharmacy", .health, 6, 40, 0.05),
-            ("AMC Theatres", .entertainment, 14, 32, 0.03),
-            ("Delta Air Lines", .travel, 180, 420, 0.01),
+            ("Bluebird Coffee", .dining, 4.5, 9, 0.16),
+            ("Greenleaf Salads", .dining, 12, 18, 0.10),
+            ("Sunrise Donuts", .dining, 3.5, 7, 0.10),
+            ("Harbor Market", .groceries, 18, 85, 0.10),
+            ("Golden Lotus Grocery", .groceries, 15, 70, 0.06),
+            ("City Transit", .transport, 2.4, 10, 0.11),
+            ("QuickRide", .transport, 9, 34, 0.06),
+            ("ShopNow Online", .shopping, 8, 120, 0.09),
+            ("Everyday Mart", .shopping, 12, 90, 0.05),
+            ("Corner Pharmacy", .health, 6, 40, 0.05),
+            ("Starlight Cinemas", .entertainment, 14, 32, 0.03),
+            ("SkyHigh Airways", .travel, 180, 420, 0.01),
         ]
-        let subscriptions: [(String, Int, Int)] = [("Netflix", 1549, 3), ("Spotify", 1199, 9), ("Claude", 2000, 12)]
+        let subscriptions: [(String, Int, Int)] = [("StreamBox", 1549, 3), ("TuneWave Music", 1199, 9), ("Cloud Storage", 299, 12)]
         let calendar = Calendar.current
         let totalWeight = pool.reduce(0) { $0 + $1.4 }
         var n = 0
