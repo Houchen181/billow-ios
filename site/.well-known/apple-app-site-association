@@ -1,0 +1,12 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["TEAMID.com.houchenli.charges"],
+        "components": [
+          { "/": "/plaid/*", "comment": "Plaid OAuth redirect back into Charges" }
+        ]
+      }
+    ]
+  }
+}

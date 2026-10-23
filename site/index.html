@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Charges — setup guide</title>
+  <meta name="description" content="Automatic credit-card expense tracking with your own free Plaid account. No servers, no subscriptions.">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <main>
+    <h1>⚡ Charges</h1>
+    <p>Charges tracks spending on all your credit cards automatically. It connects to your banks through
+      <b>your own free Plaid account</b>, so there is no Charges server: your keys and transactions stay on your
+      iPhone and are sent only to Plaid.</p>
+
+    <h2>Set up bank sync (about 10 minutes, once)</h2>
+    <div class="card">
+      <ol>
+        <li>Create a free account at <a href="https://dashboard.plaid.com/signup">dashboard.plaid.com</a>.</li>
+        <li>Apply for the free <a href="https://dashboard.plaid.com/trial-plan">Trial plan</a> — real bank data for up to
+          10 bank logins (US &amp; Canada). Describe the use case as personal expense tracking.</li>
+        <li>In the dashboard, open <b>Developers → API → Allowed redirect URIs</b> and add
+          <code>https://charges-hl.pages.dev/plaid/oauth</code></li>
+        <li>Open <b>Developers → Keys</b>. In Charges, go to <b>Accounts → Plaid keys</b> and paste your
+          <code>client_id</code> and Production secret, then tap <b>Verify &amp; save</b>.</li>
+        <li>Tap <b>Link a bank</b> and sign in on your bank's own page. Repeat for each bank.</li>
+      </ol>
+    </div>
+    <p class="muted">One login per bank covers every card at that bank. Removing a bank does not give the Trial slot
+      back, so use <b>Reconnect</b> if a login breaks.</p>
+
+    <h2>Apple Card and instant Apple Pay logging</h2>
+    <div class="card">
+      <ol>
+        <li>Open <b>Shortcuts → Automation → + → Transaction</b>, select all cards, choose <b>Run Immediately</b>.</li>
+        <li>Add the <b>Log Card Tap</b> action from Charges and map Amount, Merchant and Card from
+          <i>Shortcut Input</i>.</li>
+      </ol>
+    </div>
+    <p class="muted">This fires on in-store Apple Pay taps. When the same purchase later arrives from a linked bank,
+      Charges merges the two.</p>
+
+    <h2>Support</h2>
+    <p>Questions or problems: see the <a href="/privacy">privacy policy</a> for contact details.</p>
+  </main>
+</body>
+</html>
