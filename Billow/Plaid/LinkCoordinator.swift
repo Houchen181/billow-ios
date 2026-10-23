@@ -25,7 +25,13 @@ final class LinkCoordinator {
             if let bank {
                 accessToken = Keychain.get(AppConfig.accessTokenKey(itemID: bank.itemID))
             }
-            let token = try await client.createLinkToken(accessToken: accessToken)
+            let token: String
+            do {
+                token = try await client.createLinkToken(accessToken: accessToken)
+            } catch let error as PlaidAPIError where error.isRedirectProblem && client.environment == .sandbox {
+                // Sandbox test banks don't need OAuth, so let testing work before the URI is registered.
+                token = try await client.createLinkToken(accessToken: accessToken, includeRedirect: false)
+            }
 
             let configuration = LinkTokenConfiguration(
                 token: token,
@@ -80,7 +86,7 @@ final class LinkCoordinator {
 
     static func describe(_ error: Error) -> String {
         if let plaid = error as? PlaidAPIError {
-            if plaid.code == "INVALID_FIELD", (plaid.errorMessage ?? "").contains("redirect") {
+            if plaid.isRedirectProblem {
                 return "Plaid rejected the redirect URI. Add \(AppConfig.redirectURI) under Developers → API → Allowed redirect URIs in your Plaid dashboard."
             }
             if plaid.code == "INVALID_API_KEYS" {

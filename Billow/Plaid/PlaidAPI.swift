@@ -14,6 +14,11 @@ struct PlaidAPIError: LocalizedError, Decodable {
     var needsReconnect: Bool {
         ["ITEM_LOGIN_REQUIRED", "PENDING_EXPIRATION", "PENDING_DISCONNECT", "ACCESS_NOT_GRANTED"].contains(code)
     }
+
+    /// The redirect URI isn't in the user's "Allowed redirect URIs" yet.
+    var isRedirectProblem: Bool {
+        code == "INVALID_FIELD" && (errorMessage ?? "").lowercased().contains("redirect")
+    }
 }
 
 enum PlaidClientError: LocalizedError {
@@ -97,15 +102,21 @@ struct PlaidClient {
         return PlaidClient(environment: env, clientID: id, secret: secret)
     }
 
+    /// Checks only the client_id/secret pair (no redirect URI involved).
+    func validateKeys() async throws {
+        let _: EmptyResponse = try await post("/institutions/get", ["count": 1, "offset": 0, "country_codes": ["US"]])
+    }
+
     /// New-bank Link token, or update-mode token when `accessToken` is given.
-    func createLinkToken(accessToken: String? = nil) async throws -> String {
+    /// Without a redirect URI only non-OAuth banks work (e.g. Sandbox test banks).
+    func createLinkToken(accessToken: String? = nil, includeRedirect: Bool = true) async throws -> String {
         var body: [String: Any] = [
             "client_name": "Billow",
             "language": "en",
             "country_codes": ["US"],
             "user": ["client_user_id": AppConfig.installID],
-            "redirect_uri": AppConfig.redirectURI,
         ]
+        if includeRedirect { body["redirect_uri"] = AppConfig.redirectURI }
         if let accessToken {
             body["access_token"] = accessToken
         } else {

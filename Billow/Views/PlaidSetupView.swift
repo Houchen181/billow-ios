@@ -102,10 +102,20 @@ struct PlaidSetupView: View {
         let id = clientID.trimmingCharacters(in: .whitespacesAndNewlines)
         let key = secret.trimmingCharacters(in: .whitespacesAndNewlines)
         do {
-            _ = try await PlaidClient(environment: environment, clientID: id, secret: key).createLinkToken()
+            let client = PlaidClient(environment: environment, clientID: id, secret: key)
+            try await client.validateKeys()
             AppConfig.saveCredentials(clientID: id, secret: key, env: environment)
             succeeded = true
             resultText = "Keys verified and saved. Next: Accounts → Link a bank."
+            do {
+                _ = try await client.createLinkToken()
+            } catch let error as PlaidAPIError where error.isRedirectProblem {
+                resultText = environment == .sandbox
+                    ? "Keys saved — test banks work now. Before linking real banks, add \(AppConfig.redirectURI) in Plaid → Developers → API → Allowed redirect URIs."
+                    : "Keys saved. One more step: add \(AppConfig.redirectURI) in Plaid → Developers → API → Allowed redirect URIs, then link your banks."
+            } catch {
+                // Keys are valid; anything else will surface when linking.
+            }
             await Notifier.requestPermission()
             onDone?()
         } catch {
