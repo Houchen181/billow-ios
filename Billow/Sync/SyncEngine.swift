@@ -23,6 +23,10 @@ final class SyncEngine {
         let env = client.environment.rawValue
         let banks = (try? context.fetch(FetchDescriptor<LinkedBank>(
             predicate: #Predicate { $0.environment == env }))) ?? []
+        // Sample data has done its job once a real bank is connected.
+        if client.environment == .production, !banks.isEmpty, DemoData.isEnabled {
+            DemoData.setEnabled(false, context: context)
+        }
         var fresh: [NewCharge] = []
 
         for bank in banks {
