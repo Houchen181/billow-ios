@@ -23,7 +23,9 @@ final class TourUITests: XCTestCase {
         mark("scrub")
         let from = window.coordinate(withNormalizedOffset: CGVector(dx: 0.30, dy: 0.585))
         let to = window.coordinate(withNormalizedOffset: CGVector(dx: 0.88, dy: 0.585))
-        from.press(forDuration: 0.4, thenDragTo: to, withVelocity: .slow, thenHoldForDuration: 1.0)
+        // Slow drag (points/second) so viewers can watch the highlighted day move.
+        from.press(forDuration: 0.4, thenDragTo: to, withVelocity: XCUIGestureVelocity(180),
+                   thenHoldForDuration: 1.0)
         pause(0.5)
 
         mark("scroll")

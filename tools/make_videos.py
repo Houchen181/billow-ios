@@ -35,10 +35,12 @@ STEPS = [
 ]
 BLUE_TOP, BLUE_BOTTOM = (57, 135, 229), (16, 66, 129)
 FPS = 30
-HOLD = 1.8             # longest still moment kept, seconds
-HOLD_END = 2.6         # ...except the closing shot
+HOLD = 1.15            # longest still moment kept, seconds
+HOLD_START = 3.0       # ...except the opening shot
+HOLD_END = 2.6         # ...and the closing shot
 MAX_PREVIEW = 29.0     # App Store limit is 30 s; keep a margin
 MIN_PREVIEW = 15.5     # ...and 15 s minimum
+MAX_SOCIAL = 34.0      # social cut can run closer to natural speed
 
 # Layouts: canvas, footage height and top, caption size / centre / wrap width.
 STORE = dict(W=886, H=1920, app_h=1560, app_y=288, cap_px=44, cap_cy=148, cap_wrap=780, radius=50)
@@ -47,17 +49,22 @@ SOCIAL = dict(W=1080, H=1920, app_h=1440, app_y=372, cap_px=64, cap_cy=215, cap_
 
 # ---------- helpers ----------
 
+FFMPEG = os.environ.get("FFMPEG", "ffmpeg")
+
+
 def run(cmd, capture=False):
+    if cmd[0] == "ffmpeg":
+        cmd = [FFMPEG, *cmd[1:]]
     print("+", " ".join(cmd), flush=True)
-    result = subprocess.run(cmd, check=True, capture_output=capture, text=capture)
+    result = subprocess.run(cmd, check=True, capture_output=capture, text=capture,
+                            encoding="utf-8" if capture else None, errors="replace" if capture else None)
     return result.stderr if capture else None
 
 
 def probe_size(path):
-    out = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries",
-                          "stream=width,height", "-of", "csv=p=0", path],
-                         check=True, capture_output=True, text=True).stdout.strip()
-    w, h = out.split(",")[:2]
+    info = subprocess.run([FFMPEG, "-hide_banner", "-i", path], capture_output=True, text=True,
+                          encoding="utf-8", errors="replace").stderr
+    w, h = re.search(r"Video:.*?, (\d{2,5})x(\d{2,5})", info).groups()
     return int(w), int(h)
 
 
@@ -105,6 +112,11 @@ def wrap(draw, text, font, max_w):
             lines.append(line)
             line = word
     lines.append(line)
+    if len(lines) == 2:   # balance the two lines instead of leaving an orphan word
+        words = text.split()
+        splits = [(" ".join(words[:i]), " ".join(words[i:])) for i in range(1, len(words))]
+        lines = list(min(splits, key=lambda s: max(draw.textlength(s[0], font=font),
+                                                   draw.textlength(s[1], font=font))))
     return lines
 
 
@@ -170,18 +182,27 @@ def title_card(fonts, icon_path, path, outro=False):
 # ---------- timeline ----------
 
 def detect_freezes(video, duration):
+    # Sensitive enough that small changes (a chart day highlight) count as motion.
     log = run(["ffmpeg", "-hide_banner", "-i", video, "-vf",
-               "scale=330:-2,freezedetect=n=0.003:d=0.5", "-f", "null", "-"], capture=True)
+               "scale=660:-2,freezedetect=n=0.0002:d=0.5", "-f", "null", "-"], capture=True)
     starts = [float(x) for x in re.findall(r"freeze_start: ([\d.]+)", log)]
     ends = [float(x) for x in re.findall(r"freeze_end: ([\d.]+)", log)]
     ends += [duration] * (len(starts) - len(ends))
     return list(zip(starts, ends))
 
 
+def scene_changes(video, threshold=0.06):
+    """Timestamps of large visual changes: tab switches, sheets, scrolling."""
+    log = run(["ffmpeg", "-hide_banner", "-i", video, "-vf",
+               f"scale=330:-2,select='gt(scene,{threshold})',showinfo", "-f", "null", "-"], capture=True)
+    return sorted(float(x) for x in re.findall(r"pts_time:([\d.]+)", log))
+
+
 def keep_intervals(freezes, duration):
     keeps, cursor = [], 0.0
     for start, end in freezes:
-        limit = HOLD_END if end >= duration - 0.05 else HOLD   # let the closing shot breathe
+        # Let the opening and closing shots breathe; trim the rest harder.
+        limit = HOLD_START if start <= 0.05 else HOLD_END if end >= duration - 0.05 else HOLD
         if end - start > limit:
             keeps.append((cursor, start + limit))
             cursor = end
@@ -276,36 +297,72 @@ def main():
         raise SystemExit("no TOURMARK lines found")
     end = marks.get("end", max(marks.values()) + 2.5)
 
-    # 1. Constant-frame-rate copy of the tour (simctl records variable frame rate).
+    # 1. Constant-frame-rate copy of the tour. simctl records variable frame rate
+    #    (almost no frames while the screen is still), so seeking first would start
+    #    at the next *change* and shift everything early. Convert the whole file
+    #    to CFR, then trim frame-exactly.
     t0 = max(0.0, marks[steps[0][0]] - rec_start - 0.15)
     raw_d = end - rec_start - t0
     cfr = os.path.join(work, "tour-cfr.mp4")
-    run(["ffmpeg", "-y", "-ss", f"{t0:.3f}", "-t", f"{raw_d:.3f}", "-i", a.raw,
-         "-vf", f"fps={FPS}", "-c:v", "libx264", "-preset", "veryfast", "-crf", "12", cfr])
+    run(["ffmpeg", "-y", "-i", a.raw, "-vf",
+         f"fps={FPS},trim=start={t0:.3f}:end={t0 + raw_d:.3f},setpts=PTS-STARTPTS",
+         "-c:v", "libx264", "-preset", "veryfast", "-crf", "12", cfr])
 
-    # 2. Cut still stretches down to HOLD seconds; speed up only if still too long.
-    keeps = keep_intervals(detect_freezes(cfr, raw_d), raw_d)
+    # 2. Cut still stretches down to a short hold.
+    freezes = detect_freezes(cfr, raw_d)
+    keeps = keep_intervals(freezes, raw_d)
     kept = sum(b - a for a, b in keeps)
-    speed = max(1.0, kept / MAX_PREVIEW)
-    body = kept / speed
-    hold = max(0.0, MIN_PREVIEW - body)
-    total = body + hold
-    to_cut = mapper(keeps, speed)
-    windows = []
-    for i, (name, caption) in enumerate(steps):
-        s = to_cut(marks[name] - rec_start - t0)
-        e = to_cut(marks[steps[i + 1][0]] - rec_start - t0) if i + 1 < len(steps) else total
-        windows.append((s, max(e, s + 0.8), caption))
-    print(f"tour {raw_d:.1f}s -> kept {kept:.1f}s in {len(keeps)} pieces -> {total:.1f}s "
-          f"(speed x{speed:.2f}, end hold {hold:.1f}s)")
-    for s, e, c in windows:
-        print(f"  {s:5.1f}-{e:5.1f}s  {c}")
 
-    # 3. App Store preview.
+    # Each step logs its mark, then XCTest pauses before acting. Start each
+    # caption when its action visibly begins: the first big scene change after
+    # the mark, else the first moment motion resumes (small changes like the
+    # chart scrub).
+    onsets = sorted(e for _, e in freezes if e < raw_d - 0.05)
+    cuts = scene_changes(cfr)
+
+    def timeline(max_len):
+        speed = max(1.0, kept / max_len)
+        body = kept / speed
+        hold = max(0.0, MIN_PREVIEW - body)
+        total = body + hold
+        to_cut = mapper(keeps, speed)
+
+        def at(name):
+            return marks[name] - rec_start - t0
+
+        def caption_start(i):
+            m = at(steps[i][0])
+            nxt = at(steps[i + 1][0]) if i + 1 < len(steps) else at("end") if "end" in marks else raw_d
+            hi = min(m + 8.0, nxt)          # never borrow the next step's action
+            hit = next((c for c in cuts if m - 0.05 <= c < hi), None)
+            if hit is not None:
+                # Scene scores rise late on cross-fades; back up to where motion began.
+                early = [o for o in onsets if max(m - 0.05, hit - 1.5) <= o <= hit]
+                if early:
+                    hit = early[0]
+            else:
+                hit = next((o for o in onsets if m - 0.05 <= o < hi), None)
+            return to_cut(hit) - 0.12 if hit is not None else to_cut(m)
+
+        starts = [0.0] + [caption_start(i) for i in range(1, len(steps))]
+        for i in range(1, len(starts)):
+            starts[i] = max(starts[i], starts[i - 1] + 1.0)
+        windows = [(starts[i], starts[i + 1] if i + 1 < len(starts) else total, c)
+                   for i, (_, c) in enumerate(steps)]
+        print(f"tour {raw_d:.1f}s -> kept {kept:.1f}s in {len(keeps)} pieces -> {total:.1f}s "
+              f"(speed x{speed:.2f}, end hold {hold:.1f}s)")
+        for s, e, c in windows:
+            print(f"  {s:5.1f}-{e:5.1f}s  {c}")
+        return speed, hold, total, windows
+
+    # 3. App Store preview (must stay within 15-30 s).
+    speed, hold, total, windows = timeline(MAX_PREVIEW)
     store_out = os.path.join(a.out, "billow-app-preview-886x1920.mp4")
     compose(cfr, keeps, speed, hold, total, windows, fonts, STORE, work, "store", store_out, audio=True)
+    store_total = total
 
-    # 4. Social cut: intro card -> tour -> outro card, cross-faded.
+    # 4. Social cut: intro card -> tour -> outro card, cross-faded, gentler pace.
+    speed, hold, total, windows = timeline(MAX_SOCIAL)
     main_mp4 = os.path.join(work, "social-main.mp4")
     compose(cfr, keeps, speed, hold, total, windows, fonts, SOCIAL, work, "social", main_mp4, audio=False)
     intro_png = os.path.join(work, "intro.png")
@@ -340,7 +397,7 @@ def main():
         run(["ffmpeg", "-y", "-i", src, "-vf",
              f"fps=1/2.4,scale={width}:-2,tile={grid}:padding=8:margin=8:color=white",
              "-frames:v", "1", os.path.join(a.out, name)])
-    print(f"done: preview {total:.1f}s, social {social_total:.1f}s")
+    print(f"done: preview {store_total:.1f}s, social {social_total:.1f}s")
 
 
 if __name__ == "__main__":
