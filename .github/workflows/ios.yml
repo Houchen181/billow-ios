@@ -178,7 +178,9 @@ jobs:
             --raw "$RUNNER_TEMP/raw.mp4" --start "$RUNNER_TEMP/rec_start.txt" --marks "$RUNNER_TEMP/marks.txt" \
             --icon Billow/Assets.xcassets/AppIcon.appiconset/icon-1024.png \
             --font-dir "$RUNNER_TEMP/inter" --out video
-          cp "$RUNNER_TEMP/raw.mp4" video/raw-tour.mp4
+          mkdir -p video/source
+          cp "$RUNNER_TEMP/raw.mp4" video/source/raw-tour.mp4
+          cp "$RUNNER_TEMP/marks.txt" "$RUNNER_TEMP/rec_start.txt" video/source/
           rm -rf video/work
       - uses: actions/upload-artifact@v4
         with:
