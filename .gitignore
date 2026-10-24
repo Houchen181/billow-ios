@@ -32,3 +32,6 @@ node_modules/
 !.dev.vars.example
 .env*
 !.env.example
+
+# Rendered promo videos (regenerate: Actions -> iOS -> video)
+marketing/
