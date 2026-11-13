@@ -194,13 +194,8 @@ final class SyncEngine {
                 existing.name = account.name
                 existing.mask = account.mask
             } else {
-                let new = BankAccount(accountID: id, itemID: bank.itemID, name: account.name,
-                                      mask: account.mask, type: account.type, subtype: account.subtype)
-                // Plaid's fake Sandbox data sits mostly in checking, so show it while testing.
-                if bank.environment == PlaidEnvironment.sandbox.rawValue && account.type == "depository" {
-                    new.included = true
-                }
-                context.insert(new)
+                context.insert(BankAccount(accountID: id, itemID: bank.itemID, name: account.name,
+                                           mask: account.mask, type: account.type, subtype: account.subtype))
             }
         }
     }

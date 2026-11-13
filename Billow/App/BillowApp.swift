@@ -30,9 +30,11 @@ enum AppTab: String, Hashable {
     case overview, activity, accounts
 }
 
-/// Launch arguments CI uses for simulator screenshots:
+/// Launch arguments CI uses for simulator screenshots and the preview video:
 /// `-ui-demo` skips onboarding and loads demo data; `-ui-tab activity` picks a tab.
+/// Debug builds only — App Store builds contain no launch-argument switches.
 enum LaunchOptions {
+#if DEBUG
     private static let arguments = ProcessInfo.processInfo.arguments
 
     static var demo: Bool { arguments.contains("-ui-demo") }
@@ -41,6 +43,10 @@ enum LaunchOptions {
         guard let i = arguments.firstIndex(of: "-ui-tab"), i + 1 < arguments.count else { return .overview }
         return AppTab(rawValue: arguments[i + 1]) ?? .overview
     }
+#else
+    static let demo = false
+    static let tab = AppTab.overview
+#endif
 }
 
 struct RootView: View {

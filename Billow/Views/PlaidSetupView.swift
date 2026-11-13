@@ -71,7 +71,7 @@ struct PlaidSetupView: View {
             } header: {
                 Text("3 · Paste your keys")
             } footer: {
-                Text("Plaid dashboard → Developers → Keys. Stored only in this iPhone's Keychain and sent only to Plaid — Billow has no server.")
+                Text("Plaid dashboard → Developers → Keys. Plaid has two environments: **Production** connects your real banks; **Sandbox** is Plaid's test environment with sample banks and fake transactions, handy for trying Billow first. Billow works the same way in both. Keys are stored only in this iPhone's Keychain and sent only to Plaid — Billow has no server.")
             }
 
             Section {
@@ -110,9 +110,7 @@ struct PlaidSetupView: View {
             do {
                 _ = try await client.createLinkToken()
             } catch let error as PlaidAPIError where error.isRedirectProblem {
-                resultText = environment == .sandbox
-                    ? "Keys saved — test banks work now. Before linking real banks, add \(AppConfig.redirectURI) in Plaid → Developers → API → Allowed redirect URIs."
-                    : "Keys saved. One more step: add \(AppConfig.redirectURI) in Plaid → Developers → API → Allowed redirect URIs, then link your banks."
+                resultText = "Keys saved. One more step: add \(AppConfig.redirectURI) in Plaid → Developers → API → Allowed redirect URIs, then link your banks."
             } catch {
                 // Keys are valid; anything else will surface when linking.
             }

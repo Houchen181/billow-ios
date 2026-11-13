@@ -108,15 +108,14 @@ struct PlaidClient {
     }
 
     /// New-bank Link token, or update-mode token when `accessToken` is given.
-    /// Without a redirect URI only non-OAuth banks work (e.g. Sandbox test banks).
-    func createLinkToken(accessToken: String? = nil, includeRedirect: Bool = true) async throws -> String {
+    func createLinkToken(accessToken: String? = nil) async throws -> String {
         var body: [String: Any] = [
             "client_name": "Billow",
             "language": "en",
             "country_codes": ["US"],
             "user": ["client_user_id": AppConfig.installID],
+            "redirect_uri": AppConfig.redirectURI,
         ]
-        if includeRedirect { body["redirect_uri"] = AppConfig.redirectURI }
         if let accessToken {
             body["access_token"] = accessToken
         } else {

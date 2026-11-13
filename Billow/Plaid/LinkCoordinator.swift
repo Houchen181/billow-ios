@@ -25,13 +25,7 @@ final class LinkCoordinator {
             if let bank {
                 accessToken = Keychain.get(AppConfig.accessTokenKey(itemID: bank.itemID))
             }
-            let token: String
-            do {
-                token = try await client.createLinkToken(accessToken: accessToken)
-            } catch let error as PlaidAPIError where error.isRedirectProblem && client.environment == .sandbox {
-                // Sandbox test banks don't need OAuth, so let testing work before the URI is registered.
-                token = try await client.createLinkToken(accessToken: accessToken, includeRedirect: false)
-            }
+            let token = try await client.createLinkToken(accessToken: accessToken)
 
             let configuration = LinkTokenConfiguration(
                 token: token,
