@@ -88,11 +88,12 @@ struct ChargeRow: View {
                     .font(.body.weight(.medium))
                     .lineLimit(1)
                 HStack(spacing: 4) {
-                    Text(charge.category.title)
+                    // Category and tags keep their width; the card name truncates first.
+                    Text(charge.category.title).lineLimit(1).fixedSize()
                     Text("·")
-                    Text(charge.cardName).lineLimit(1)
-                    if charge.pending { Text("· Pending") }
-                    if charge.source == "demo" { Text("· Demo") }
+                    Text(charge.cardName).lineLimit(1).layoutPriority(-1)
+                    if charge.pending { Text("· Pending").fixedSize() }
+                    if charge.source == "demo" { Text("· Demo").fixedSize() }
                     if charge.source == "tap" {
                         Image(systemName: "wave.3.right").accessibilityLabel("Apple Pay tap")
                     }
